@@ -85,6 +85,70 @@ class EnigmaGUI(QWidget):
                 self.steckbrett_window.close()  # Steckbrett schließen
                 del self.steckbrett_window  # Lösche die Referenz zum Fenster
 
+    def crypt(self, letter):
+        """
+        Verschlüsselt oder entschlüsselt einen Buchstaben basierend auf dem Zustand des Steckbretts.
+        Gibt den verschlüsselten/verbundenen Buchstaben zurück.
+        """
+        if self.steckbrett_checkbox.isChecked():
+            # Wenn das Steckbrett aktiviert ist, verwende die Methode get_connected_letter_by_label
+            print(f"Verschlüssele/entschlüssele mit Steckbrett für Buchstaben: {letter}")
+            return self.steckbrett_window.get_connected_letter_by_label(letter)
+        else:
+            # Wenn das Steckbrett nicht aktiviert ist, passiert nichts
+            print(f"Keine Verschlüsselung, gebe den Buchstaben zurück: {letter}")
+            return letter
+
+    def handle_key_press(self):
+        sender = self.sender()
+        pressed_key = sender.text()
+        print(f"Taste gedrückt: {pressed_key}")
+
+        # Verschlüsselung oder Entschlüsselung des Buchstabens
+        encrypted_letter = self.crypt(pressed_key)
+        print(f"Verschlüsselter/entschlüsselter Buchstabe: {encrypted_letter}")
+
+        # Lämpchen für den verschlüsselten Buchstaben aktivieren
+        self.activate_lamp(encrypted_letter)
+
+    def handle_key_release(self):
+        sender = self.sender()
+        released_key = sender.text()
+        print(f"Taste losgelassen: {released_key}")
+
+        # Verschlüsselung oder Entschlüsselung des Buchstabens beim Loslassen
+        encrypted_letter = self.crypt(released_key)
+        print(f"Verschlüsselter/entschlüsselter Buchstabe beim Loslassen: {encrypted_letter}")
+
+        # Lämpchen für den verschlüsselten Buchstaben deaktivieren
+        self.deactivate_lamp(encrypted_letter)
+
+    def activate_lamp(self, key):
+        # Aktiviert das Glühlämpchen für den gedrückten Buchstaben
+        row_layout, index = self.key_to_lamp_mapping.get(key, (None, None))
+        if row_layout:
+            lamp = row_layout.itemAt(index).widget()
+            if lamp:
+                lamp.setStyleSheet("""
+                    background-color: yellow;
+                    border: 1px solid black;
+                    border-radius: 20px;
+                    color: black;
+                """)
+
+    def deactivate_lamp(self, key):
+        # Deaktiviert das Glühlämpchen für den losgelassenen Buchstaben
+        row_layout, index = self.key_to_lamp_mapping.get(key, (None, None))
+        if row_layout:
+            lamp = row_layout.itemAt(index).widget()
+            if lamp:
+                lamp.setStyleSheet("""
+                    background-color: lightgray;
+                    border: 1px solid black;
+                    border-radius: 20px;
+                    color: black;
+                """)
+
     def add_keys_to_grid(self, layout):
         # Tastenreihen
         keys_row1 = ["Q", "W", "E", "R", "T", "Z", "U", "I", "O"]
@@ -184,44 +248,6 @@ class EnigmaGUI(QWidget):
         for i, key in enumerate(keys_row3):
             mapping[key] = (self.lamps_layout_row3, i)
         return mapping
-
-    def handle_key_press(self):
-        sender = self.sender()
-        pressed_key = sender.text()
-        print(f"Taste gedrückt: {pressed_key}")
-        self.activate_lamp(pressed_key)
-
-    def handle_key_release(self):
-        sender = self.sender()
-        released_key = sender.text()
-        print(f"Taste losgelassen: {released_key}")
-        self.deactivate_lamp(released_key)
-
-    def activate_lamp(self, key):
-        # Aktiviert das Glühlämpchen für den gedrückten Buchstaben
-        row_layout, index = self.key_to_lamp_mapping.get(key, (None, None))
-        if row_layout:
-            lamp = row_layout.itemAt(index).widget()
-            if lamp:
-                lamp.setStyleSheet("""
-                    background-color: yellow;
-                    border: 1px solid black;
-                    border-radius: 20px;
-                    color: black;
-                """)
-
-    def deactivate_lamp(self, key):
-        # Deaktiviert das Glühlämpchen für den losgelassenen Buchstaben
-        row_layout, index = self.key_to_lamp_mapping.get(key, (None, None))
-        if row_layout:
-            lamp = row_layout.itemAt(index).widget()
-            if lamp:
-                lamp.setStyleSheet("""
-                    background-color: lightgray;
-                    border: 1px solid black;
-                    border-radius: 20px;
-                    color: black;
-                """)
 
 
 if __name__ == "__main__":
